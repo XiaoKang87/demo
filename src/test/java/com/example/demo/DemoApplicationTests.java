@@ -13,6 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -46,7 +48,7 @@ public class DemoApplicationTests {
 	}
 
 	@Test
-	public void simpleTest(){
+	public void simpleTest() throws Exception{
 
 		List<String> list = mock(List.class);
 
@@ -70,6 +72,26 @@ public class DemoApplicationTests {
 		StringBuilder stringBuilder = new StringBuilder("hello");
 		System.out.println(stringBuilder.reverse());
 
+		//测试type类型
+		Method method = getClass().getMethod("methodIV", ArrayList.class,
+				ArrayList.class, ArrayList.class, ArrayList.class, ArrayList.class);
+		Type[] types = method.getGenericParameterTypes();
+		ParameterizedType param1 = (ParameterizedType)types[4];
+		Type[] types1 = param1.getActualTypeArguments();
+		Type param1_type = param1.getRawType();
+		System.out.println(param1_type.getTypeName());
+		System.out.println(types1[0].getTypeName());
+		//GenericArrayType gat = (GenericArrayType)types1[0];
+		//Type arrElementType = gat.getGenericComponentType();
+		Class<?> arr = (Class<?>)types1[0];
+		assertThat(arr.isArray()).isTrue();
+		assertThat(types1[0] instanceof Class).isTrue();
+		System.out.println(arr.getComponentType().getTypeName());
+	}
+
+	public static <E> E methodIV(ArrayList<ArrayList> al1, ArrayList<E> al2, ArrayList<String> al3,
+							  ArrayList<? extends Number> al4, ArrayList<String[]> al5) {
+		return al2.get(0);
 	}
 
 	private String intToString(Integer i) {
