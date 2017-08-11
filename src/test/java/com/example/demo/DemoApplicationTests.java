@@ -3,6 +3,7 @@ package com.example.demo;
 import com.example.demo.event.ContentEvent;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
+import com.sun.mail.util.MailSSLSocketFactory;
 import org.assertj.core.internal.Bytes;
 import org.springframework.context.ApplicationContext;
 import org.junit.Test;
@@ -14,8 +15,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.assertj.core.api.Assertions.*;
 
 import java.lang.reflect.*;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
 
 import static org.mockito.Mockito.*;
 
@@ -92,6 +99,58 @@ public class DemoApplicationTests {
 	public static <E> E methodIV(ArrayList<ArrayList> al1, ArrayList<E> al2, ArrayList<String> al3,
 							  ArrayList<? extends Number> al4, ArrayList<String[]> al5) {
 		return al2.get(0);
+	}
+
+	@Test
+	public void sendQQMail() throws Exception{
+		// 收件人电子邮箱
+		String to = "657470679@qq.com";
+
+		// 发件人电子邮箱
+		final String from = "578221811@qq.com";
+
+		//设置SSL连接、邮件环境
+		Properties props = System.getProperties();
+		props.setProperty("mail.smtp.host", "smtp.qq.com");
+		props.setProperty("mail.smtp.port", "587");
+		props.setProperty("mail.smtp.auth", "true");
+		//MailSSLSocketFactory sf = new MailSSLSocketFactory();
+		//sf.setTrustAllHosts(true);
+		//props.put("mail.smtp.ssl.enable", "true");
+		//props.put("mail.smtp.ssl.socketFactory", sf);
+		//建立邮件会话
+		Session session = Session.getDefaultInstance(props, new Authenticator() {
+			//身份认证
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(from, "xxxxx");
+			}
+		});
+		session.setDebug(true);
+		try {
+			// 创建默认的 MimeMessage 对象
+			MimeMessage message = new MimeMessage(session);
+
+			// Set From: 头部头字段
+			InternetAddress from_address = new InternetAddress(from);
+			//设置发件人显示姓名
+			from_address.setPersonal(MimeUtility.encodeText("kevin"));
+			message.setFrom(from_address);
+
+			// Set To: 头部头字段
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+
+			// Set Subject: 头部头字段
+			message.setSubject("This is the Subject Line!");
+
+			// 设置消息体
+			message.setText("This is actual message,hahaha");
+
+			// 发送消息
+			Transport.send(message);
+			System.out.println("Sent message successfully....from runoob.com");
+		} catch (MessagingException mex) {
+			mex.printStackTrace();
+		}
 	}
 
 	private String intToString(Integer i) {
