@@ -3,6 +3,12 @@ package com.example.demo.controller;
 import com.example.demo.editor.IsbnEditor;
 import com.example.demo.model.Demo;
 import com.example.demo.model.Isbn;
+import com.example.demo.model.User;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -10,12 +16,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
+import javax.naming.Name;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +30,13 @@ import java.util.Map;
 @Controller
 public class DemoController {
 
-    @RequestMapping(path={"/demo", "/"})
+    @RequestMapping("/")
+    public String welcome(Map<String, Object> model) {
+        model.put("time", new Date());
+        return "welcome";
+    }
+
+    @RequestMapping(path={"/demo"})
     public String demo(String a, String b, Model model){
         model.addAttribute("demo", new Demo());
         return "redirect:demoAdd";
@@ -54,6 +65,25 @@ public class DemoController {
         LOGGER.info("You searched for book with ISBN :: " + isbn.getIsbn());
         model.put("isbn", isbn);
         return "index";
+    }
+
+    @RequestMapping(value = "/hello", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiOperation(value="接口说明(测试)",notes="在没有会话、没有签名的情况下，进入方法体")
+    @ApiImplicitParam(name = "tag", paramType = "query")
+    public String sayHello(String tag, @RequestBody User user) {
+        return "hello " + user.getName() + " age " + user.getAge() + " tag " + tag;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", paramType = "query"),
+            @ApiImplicitParam(name = "zone", paramType = "query")
+    })
+    public String getInfo(Integer id, String zone)
+    {
+        return "id is " + id + " zone is " + zone;
     }
 
     @InitBinder
