@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.demo.editor.IsbnEditor;
 import com.example.demo.model.Demo;
 import com.example.demo.model.Isbn;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.Name;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -89,5 +92,19 @@ public class DemoController {
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(Isbn.class, new IsbnEditor());
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/dynamo", method = RequestMethod.POST)
+    public String dynamo(HttpServletRequest request) {
+        String name = "";
+        try {
+            String body = request.getReader().readLine();
+            JSONObject jsonObject = JSONObject.parseObject(body);
+            name = jsonObject.getString("interfaceName");
+        }catch (IOException ex) {
+
+        }
+        return name;
     }
 }
